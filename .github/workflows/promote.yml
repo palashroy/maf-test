@@ -30,7 +30,7 @@ jobs:
 
   call-promotion:
     needs: determine-branches
-    uses: SESA341402/central-devops-repo/.github/workflows/reusable-promotion.yml@main
+    uses: palashroy/central-devops-repo/.github/workflows/reusable-promotion.yml@main
     with:
       source_branch: ${{ needs.determine-branches.outputs.source }}
       target_branch: ${{ needs.determine-branches.outputs.target }}
