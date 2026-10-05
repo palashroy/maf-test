@@ -1,0 +1,37 @@
+name: Trigger Branch Promotion
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: 'Select the promotion environment'
+        required: true
+        options:
+          - 'Promote dev to qa'
+          - 'Promote qa to release'
+
+jobs:
+  determine-branches:
+    runs-on: ubuntu-latest
+    outputs:
+      source: ${{ steps.set-branches.outputs.source }}
+      target: ${{ steps.set-branches.outputs.target }}
+    steps:
+      - id: set-branches
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "Promote dev to qa" ]; then
+            echo "source=dev" >> $GITHUB_OUTPUT
+            echo "target=qa" >> $GITHUB_OUTPUT
+          else
+            echo "source=qa" >> $GITHUB_OUTPUT
+            echo "target=release" >> $GITHUB_OUTPUT
+          fi
+
+  call-promotion:
+    needs: determine-branches
+    uses: SESA341402/central-devops-repo/.github/workflows/reusable-promotion.yml@main
+    with:
+      source_branch: ${{ needs.determine-branches.outputs.source }}
+      target_branch: ${{ needs.determine-branches.outputs.target }}
+    secrets: inherit
